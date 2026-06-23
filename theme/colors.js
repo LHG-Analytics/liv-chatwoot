@@ -1,6 +1,4 @@
 const {
-  blue,
-  blueDark,
   green,
   greenDark,
   yellow,
@@ -14,19 +12,21 @@ const {
 } = require('@radix-ui/colors');
 
 export const colors = {
+  // LIV brand palette (magenta). 500 = #D100D1 (primary/buttons, melhor contraste),
+  // 400 = #FF00FF (magenta vivo para destaques), 600 = #A300A3 (hover/active).
   woot: {
-    25: blue.blue2,
-    50: blue.blue3,
-    75: blue.blue4,
-    100: blue.blue5,
-    200: blue.blue7,
-    300: blue.blue8,
-    400: blueDark.blue11,
-    500: blueDark.blue10,
-    600: blueDark.blue9,
-    700: blueDark.blue8,
-    800: blueDark.blue6,
-    900: blueDark.blue2,
+    25: '#FFF0FF',
+    50: '#FCE0FC',
+    75: '#FACCFA',
+    100: '#F7B0F7',
+    200: '#F081F0',
+    300: '#EC4DEC',
+    400: '#FF00FF',
+    500: '#D100D1',
+    600: '#A300A3',
+    700: '#7A007A',
+    800: '#520052',
+    900: '#2E002E',
   },
   green: {
     50: greenDark.green12,
