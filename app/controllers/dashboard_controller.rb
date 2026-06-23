@@ -45,6 +45,9 @@ class DashboardController < ActionController::Base
 
   def set_global_config
     @global_config = GlobalConfig.get(*GLOBAL_CONFIG_KEYS).merge(app_config)
+    # LIV branding: force installation/brand name regardless of stored DB config
+    @global_config['INSTALLATION_NAME'] = 'Liv'
+    @global_config['BRAND_NAME'] = 'Liv'
   end
 
   def set_dashboard_scripts
