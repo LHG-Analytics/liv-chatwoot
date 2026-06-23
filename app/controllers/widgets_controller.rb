@@ -22,6 +22,10 @@ class WidgetsController < ActionController::Base
       'MAXIMUM_FILE_UPLOAD_SIZE',
       'INSTALLATION_NAME'
     )
+    # LIV branding: force name/logo regardless of stored DB config
+    @global_config['INSTALLATION_NAME'] = 'Liv'
+    @global_config['BRAND_NAME'] = 'Liv'
+    @global_config['LOGO_THUMBNAIL'] = '/brand-assets/liv-favicon-512.png'
   end
 
   def set_web_widget

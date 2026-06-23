@@ -69,5 +69,9 @@ class Public::Api::V1::Portals::BaseController < PublicController
 
   def set_global_config
     @global_config = GlobalConfig.get('LOGO_THUMBNAIL', 'BRAND_NAME', 'BRAND_URL', 'INSTALLATION_NAME')
+    # LIV branding: force name/logo regardless of stored DB config
+    @global_config['INSTALLATION_NAME'] = 'Liv'
+    @global_config['BRAND_NAME'] = 'Liv'
+    @global_config['LOGO_THUMBNAIL'] = '/brand-assets/liv-favicon-512.png'
   end
 end

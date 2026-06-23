@@ -878,7 +878,7 @@ const menuItems = computed(() => {
         class="flex gap-2 items-center min-w-0"
         :class="{
           'justify-center px-1': isEffectivelyCollapsed,
-          'px-2': !isEffectivelyCollapsed,
+          'justify-center px-2': !isEffectivelyCollapsed,
         }"
       >
         <template v-if="isEffectivelyCollapsed">
@@ -888,7 +888,7 @@ const menuItems = computed(() => {
           />
         </template>
         <template v-else>
-          <Logo class="h-5 w-auto" />
+          <Logo class="h-9 w-auto" />
         </template>
       </div>
       <div
