@@ -107,6 +107,25 @@ describe Whatsapp::OneoffCampaignService do
         described_class.new(campaign: campaign).perform
       end
 
+      it 'records sent and failed contacts on the campaign' do
+        sent_contact, rejected_contact = create_list(:contact, 2, :with_phone_number, account: account)
+        contact_without_phone = create(:contact, account: account, phone_number: nil)
+        [sent_contact, rejected_contact, contact_without_phone].each { |contact| contact.update_labels([label1.title]) }
+
+        allow(whatsapp_channel).to receive(:send_template).with(sent_contact.phone_number, anything, nil).and_return('wamid.123')
+        allow(whatsapp_channel).to receive(:send_template).with(rejected_contact.phone_number, anything, nil).and_return(nil)
+
+        described_class.new(campaign: campaign).perform
+        campaign.reload
+
+        expect(campaign.sent_contacts.pluck('id')).to eq([sent_contact.id])
+        expect(campaign.sent_contacts.first['message_id']).to eq('wamid.123')
+        expect(campaign.failed_contacts.to_h { |entry| [entry['id'], entry['error']] }).to eq(
+          rejected_contact.id => 'send failed',
+          contact_without_phone.id => 'no phone number'
+        )
+      end
+
       it 'skips contacts without phone numbers' do
         contact_without_phone = create(:contact, account: account, phone_number: nil)
         contact_without_phone.update_labels([label1.title])
