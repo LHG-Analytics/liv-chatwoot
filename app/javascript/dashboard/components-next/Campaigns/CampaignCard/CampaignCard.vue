@@ -42,6 +42,14 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  sentContacts: {
+    type: Array,
+    default: () => [],
+  },
+  failedContacts: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const emit = defineEmits(['edit', 'delete']);
@@ -86,6 +94,13 @@ const inboxIcon = computed(() => {
   const { medium, channel_type: type } = props.inbox;
   return getInboxIconByType(type, medium);
 });
+
+const hasStats = computed(
+  () =>
+    !props.isLiveChatType &&
+    props.status === STATUS_COMPLETED &&
+    (props.sentContacts.length > 0 || props.failedContacts.length > 0)
+);
 </script>
 
 <template>
@@ -121,6 +136,27 @@ const inboxIcon = computed(() => {
           :inbox-icon="inboxIcon"
           :scheduled-at="scheduledAt"
         />
+      </div>
+      <div v-if="hasStats" class="flex items-center gap-3 text-xs">
+        <span class="flex items-center gap-1 text-n-teal-11">
+          <i class="i-lucide-check-circle size-3.5" />
+          {{
+            t('CAMPAIGN.WHATSAPP.CARD.STATS.SENT', {
+              count: sentContacts.length,
+            })
+          }}
+        </span>
+        <span
+          v-if="failedContacts.length > 0"
+          class="flex items-center gap-1 text-n-ruby-9"
+        >
+          <i class="i-lucide-x-circle size-3.5" />
+          {{
+            t('CAMPAIGN.WHATSAPP.CARD.STATS.FAILED', {
+              count: failedContacts.length,
+            })
+          }}
+        </span>
       </div>
     </div>
     <div class="flex items-center justify-end w-20 gap-2">

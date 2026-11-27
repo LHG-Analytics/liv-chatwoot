@@ -3,8 +3,10 @@ class Whatsapp::OneoffCampaignService
 
   def perform
     validate_campaign!
+    @sent_contacts = []
+    @failed_contacts = []
     process_audience(extract_audience_labels)
-    campaign.completed!
+    campaign.update!(sent_contacts: @sent_contacts, failed_contacts: @failed_contacts, campaign_status: :completed)
   end
 
   private
@@ -44,23 +46,34 @@ class Whatsapp::OneoffCampaignService
     campaign.account.labels.where(id: audience_label_ids).pluck(:title)
   end
 
+  def contact_entry(contact)
+    { id: contact.id, name: contact.name, phone: contact.phone_number }
+  end
+
+  def record_failure(contact, error)
+    @failed_contacts << contact_entry(contact).merge(error: error)
+  end
+
   def process_contact(contact)
     Rails.logger.info "Processing contact: #{contact.name} (#{contact.phone_number})"
 
     if contact.phone_number.blank?
       Rails.logger.info "Skipping contact #{contact.name} - no phone number"
-      return
+      return record_failure(contact, 'no phone number')
     end
 
     if campaign.template_params.blank?
       Rails.logger.error "Skipping contact #{contact.name} - no template_params found for WhatsApp campaign"
-      return
+      return record_failure(contact, 'no template_params')
     end
 
     processed_template_params = process_liquid_template_params(contact)
-    return if processed_template_params.nil?
+    return record_failure(contact, 'blank template variables') if processed_template_params.nil?
 
-    send_whatsapp_template_message(to: contact.phone_number, template_params: processed_template_params)
+    message_id = send_whatsapp_template_message(to: contact.phone_number, template_params: processed_template_params)
+    return record_failure(contact, 'send failed') if message_id.blank?
+
+    @sent_contacts << contact_entry(contact).merge(message_id: message_id, sent_at: Time.current.iso8601)
   end
 
   def process_audience(audience_labels)
@@ -94,13 +107,13 @@ class Whatsapp::OneoffCampaignService
 
     return if name.blank?
 
+    # Returns the WhatsApp message id, or nil when Meta rejects the request
     channel.send_template(to, {
                             name: name,
                             namespace: namespace,
                             lang_code: lang_code,
                             parameters: processed_parameters
                           }, nil)
-
   rescue StandardError => e
     Rails.logger.error "Failed to send WhatsApp template message to #{to}: #{e.message}"
     Rails.logger.error "Backtrace: #{e.backtrace.first(5).join('\n')}"

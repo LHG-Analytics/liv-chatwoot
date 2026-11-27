@@ -8,8 +8,10 @@
 #  campaign_type                      :integer          default("ongoing"), not null
 #  description                        :text
 #  enabled                            :boolean          default(TRUE)
+#  failed_contacts                    :jsonb
 #  message                            :text             not null
 #  scheduled_at                       :datetime
+#  sent_contacts                      :jsonb
 #  template_params                    :jsonb
 #  title                              :string           not null
 #  trigger_only_during_business_hours :boolean          default(FALSE)

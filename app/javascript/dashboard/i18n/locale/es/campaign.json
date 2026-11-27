@@ -141,6 +141,12 @@
     "WHATSAPP": {
       "HEADER_TITLE": "WhatsApp campaigns",
       "NEW_CAMPAIGN": "Crear campaña",
+      "CARD": {
+        "STATS": {
+          "SENT": "{count} enviados",
+          "FAILED": "{count} fallidos"
+        }
+      },
       "EMPTY_STATE": {
         "TITLE": "No WhatsApp campaigns are available",
         "SUBTITLE": "Lanza una campaña de WhatsApp para conectar con tus clientes directamente. Envía ofertas o has anuncios fácilmente. Haz clic en 'Crear campaña' para comenzar."
