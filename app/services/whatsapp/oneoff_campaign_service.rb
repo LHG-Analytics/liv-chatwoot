@@ -1,4 +1,7 @@
 class Whatsapp::OneoffCampaignService
+  # Contacts who replied "No recibir promociones" carry this label and never receive campaigns
+  OPT_OUT_LABEL = 'optout-promocoes'.freeze
+
   pattr_initialize [:campaign!]
 
   def perform
@@ -81,6 +84,7 @@ class Whatsapp::OneoffCampaignService
 
   def process_audience(audience_labels)
     contacts = campaign.account.contacts.tagged_with(audience_labels, any: true)
+                       .tagged_with(OPT_OUT_LABEL, exclude: true)
     Rails.logger.info "Processing #{contacts.count} contacts for campaign #{campaign.id}"
 
     contacts.each { |contact| process_contact(contact) }

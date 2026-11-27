@@ -126,6 +126,17 @@ describe Whatsapp::OneoffCampaignService do
         )
       end
 
+      it 'skips contacts that opted out of promotions' do
+        subscribed_contact, opted_out_contact = create_list(:contact, 2, :with_phone_number, account: account)
+        subscribed_contact.update_labels([label1.title])
+        opted_out_contact.update_labels([label1.title, described_class::OPT_OUT_LABEL])
+
+        expect(whatsapp_channel).to receive(:send_template).with(subscribed_contact.phone_number, anything, nil).once
+        expect(whatsapp_channel).not_to receive(:send_template).with(opted_out_contact.phone_number, anything, nil)
+
+        described_class.new(campaign: campaign).perform
+      end
+
       it 'skips contacts without phone numbers' do
         contact_without_phone = create(:contact, account: account, phone_number: nil)
         contact_without_phone.update_labels([label1.title])
