@@ -57,15 +57,8 @@ class Whatsapp::OneoffCampaignService
   def process_contact(contact)
     Rails.logger.info "Processing contact: #{contact.name} (#{contact.phone_number})"
 
-    if contact.phone_number.blank?
-      Rails.logger.info "Skipping contact #{contact.name} - no phone number"
-      return record_failure(contact, 'no phone number')
-    end
-
-    if campaign.template_params.blank?
-      Rails.logger.error "Skipping contact #{contact.name} - no template_params found for WhatsApp campaign"
-      return record_failure(contact, 'no template_params')
-    end
+    reason = skip_reason(contact)
+    return record_failure(contact, reason) if reason
 
     processed_template_params = process_liquid_template_params(contact)
     return record_failure(contact, 'blank template variables') if processed_template_params.nil?
@@ -74,6 +67,16 @@ class Whatsapp::OneoffCampaignService
     return record_failure(contact, 'send failed') if message_id.blank?
 
     @sent_contacts << contact_entry(contact).merge(message_id: message_id, sent_at: Time.current.iso8601)
+  end
+
+  def skip_reason(contact)
+    if contact.phone_number.blank?
+      Rails.logger.info "Skipping contact #{contact.name} - no phone number"
+      'no phone number'
+    elsif campaign.template_params.blank?
+      Rails.logger.error "Skipping contact #{contact.name} - no template_params found for WhatsApp campaign"
+      'no template_params'
+    end
   end
 
   def process_audience(audience_labels)
